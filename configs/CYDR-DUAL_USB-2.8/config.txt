@@ -27,8 +27,8 @@ miso=39
 sclk=25
 irq=36
 cs=33
-rotation=3
-flip_x=true
+rotation=1
+flip_y=true
 
 [other]
-advanced_serial_commands=1
+

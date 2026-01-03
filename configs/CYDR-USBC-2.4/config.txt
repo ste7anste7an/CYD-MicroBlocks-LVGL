@@ -1,4 +1,4 @@
-# config file for CYD with resitive touch, USB-C, 2.4 inch
+# config file for CYD with resistive touch, USB-C, 2.4 inch
 [lcd]
 controller=ILI9341
 spi=3
@@ -27,7 +27,7 @@ miso=12
 sclk=14
 cs=33
 rotation=2
-flip_x_y=true
+
 
 [other]
-advanced_serial_commands=1
+
