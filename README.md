@@ -1,34 +1,147 @@
-# CYD-MicroBlocks-LVGL - One firmware to rule them all!
-Cheap Yellow Displays come in various forms and types. They mainly differ in the type of TFT panel driver and type of Touch controller. Generating a MicroBlocks firmware for each variant is tedious and need to be cdone for every new type.
+# CYD-MicroBlocks-LVGL  
+**One firmware to rule them all!**
 
-This firmware supports the MicroBlcoks TFT library, but also supports LVGL. See ... for the library and examples
+Cheap Yellow Displays (CYDs) come in various forms and types. They mainly differ in the type of TFT panel driver and the type of touch controller used. Generating a separate MicroBlocks firmware for each variant is tedious and needs to be redone for every new board type.
+
+This firmware supports the **MicroBlocks TFT library** and also **LVGL**. See … for the library and examples.
+
+---
 
 ## Getting started
-Go to the [firmware downloader](https://firmware.ste7an.nl) and choose 'generic CYD firmware'. Follow the steps on the webpage to install the firmware. Some CYD's do not enter Firmware upload mode automaticaly. When you see the the upload starts, while keeping the BOOT0 button pressed, briefly press the RST button and release BOOT0. 
 
-Connect your CYD with MicroBlocks. Select a `config.txt` file from this repository and drag the file into the IDE program background, or use the File -> Put file on baord. Reboot your board and you should see the BLE identifier showing on the screen (black screen with Ggreen blocks). Now, load the 'touch_check.ubp' to see whether the touch panel is working and wether the coordinates correspond with the TFT panel. To get the coordiantes correct, vary `rotation`, `flip_x', `flip_y` and `flip_x_y` in the config file, reupload, reset and try again. 
+Go to the [firmware downloader](https://firmware.ste7an.nl) and choose  
+**“MicroBlocks 3.70 for Cheap Yellow Display using TFT configurator”**.  
+Follow the steps on the webpage to install the firmware.
+
+Some CYDs do not enter firmware upload mode automatically. In that case, keep the **BOOT0** button pressed while uploading.
+
+Next, connect your CYD to MicroBlocks. Select a `config.txt` file from this repository and drag it into the IDE background, or use **File → Put file on board**.
+
+Reboot the board. You should see the BLE identifier displayed on the screen (black background with green blocks). Then load `touch_check.ubp` to verify that:
+
+- the touch panel is working
+- the touch coordinates match the TFT orientation
+
+To get the coordinate mapping correct, adjust `rotation`, `flip_x`, `flip_y`, and `flip_x_y` in the configuration file. Re-upload the file, reset the board, and test again.
+
+---
 
 ## Configuration file
-Therefore, I created a firmware that reads a configuration file from the LittleFS filesystem on the board. This file can easily be edited and replaced as to fit the configuration for a specific board. 
 
-This results in a single fimrware for all the SPI-based TFT panel CYD's and for each type a configuration file. Go to the [configurator]() webpage to see all the options and to build a config file.
+This firmware reads a configuration file from the **LittleFS** filesystem on the board. The file can easily be edited and replaced to match the configuration of a specific CYD variant.
+
+This approach results in a **single firmware** for all SPI-based TFT CYDs, with a separate configuration file per board type.
+
+Go to the [configurator]() webpage to see all available options and to build a configuration file.
+
+---
 
 ### LCD section
-Here you define the controller type (which is ILI9341) and the GPIO's used for the SPI, DC, RST, CS and backlight. The SPI hardware interface used is specified. Usually choose either 2 or 3. Furthermore you can define the height, wisth and the rotation from 0..3 which corresponds to 0, 90, 180 and 270 degrees.
-### LVGL section
-In some cases the height and width of the TFT panel are 90 degrees rotated. Therefore, the height and width used in LVGL (and also in the TFT library of MicroBlocks) are redefined here. In most cases, they are the same as in the LCD section
-### Touch section
-Two types of touch controllers are typically used. Resistive touch displays use XPT2046, capacitive touch displays use CST820. The XOT2046 is connected via SPI. In some cases it uses the same SPI controller as the TFT panel. In that case tyhe signals MISO, MOSI, and SCLK are the same and it uses the same SPI hardware interface. When the XPT is connected to a different SPI bus, the corresponding SPI signals MISO, MOSI, SCLK are defined and the SPI hardware controller should be different from the one osed in the LCD section.
 
-Because in some panels the touch controlller is rotated with respect to the LCD panel, there are 3 boolean coreection options: flip_x, flip_y and flip_x_y. Together with the rotation of the Touch controller, the values have to be experimentally determined.
+In this section you define:
+
+- The LCD controller type (currently **ILI9341**)
+- GPIOs used for SPI, DC, RST, CS, and backlight
+- The SPI hardware interface to use (usually **SPI2** or **SPI3**)
+- Display `width`, `height`, and `rotation`
+
+The `rotation` value ranges from `0` to `3`, corresponding to **0°, 90°, 180°, and 270°**.
+
+---
+
+### LVGL section
+
+In some cases the physical orientation of the TFT panel is rotated by 90 degrees. Therefore, the width and height used by **LVGL** (and also by the MicroBlocks TFT library) can be redefined here.
+
+In most cases, these values are the same as those in the LCD section.
+
+---
+
+### Touch section
+
+Two types of touch controllers are typically used:
+
+- **XPT2046** for resistive touch displays  
+- **CST820** for capacitive touch displays
+
+The XPT2046 is connected via SPI. In some designs it shares the same SPI bus as the TFT panel. In that case, the `MISO`, `MOSI`, and `SCLK` signals are shared, and the same SPI hardware interface is used.
+
+If the XPT2046 is connected to a different SPI bus, the corresponding `MISO`, `MOSI`, and `SCLK` pins must be defined, and a different SPI hardware interface should be selected than the one used for the LCD.
+
+Because the touch controller may be rotated relative to the LCD panel, three boolean correction options are provided:
+
+- `flip_x`
+- `flip_y`
+- `flip_x_y`
+
+Together with the touch controller rotation setting, these values must be determined experimentally.
+
+---
 
 ## LED
-All the CYD panels come with an RGB LED driven by GPIO4 (R), GPIO16 (G), and GPIO17 (B). The Red led is confugured as the default Output LED in MicroBlcoks
+
+All CYD panels include an RGB LED driven by:
+
+- GPIO4 (Red)
+- GPIO16 (Green)
+- GPIO17 (Blue)
+
+The **red LED** is configured as the default output LED in MicroBlocks.
+
+---
 
 ## Ports
-All the CYD's come typically with 3 4-pin ports: P1 is usually the UART port which is connected to TX and RX of the boards UART (which is also connected to a CH341 for USB connection), P3 (GND, GPIO35, GPIO22, and GPIO21), and CN1 (3V3, GPIO21, GPIO22, GND). Some boards use GPIO21 for the TFT Backlight, other use GPIO27, and yet other have CN1 with (3V3, GPIO27, GPIO22). Note that GPIO35 is an input-only pin.
 
-## Buttons
-On all CYD there are push buttons for RST and BOOT0. BOOT0 is GPIO0, so that buton is by default configured as 'Button A' oin MicroBlocks. Some variants have a small push button which controls how the battery is used (so it is not connected to a GPIO).
+CYDs typically provide three 4-pin ports:
 
+- **P1**: UART port connected to the board’s TX and RX pins  
+  (also connected to a CH341 for USB)
+- **P3**: GND, GPIO35, GPIO22, GPIO21
+- **CN1**: 3V3, GPIO21, GPIO22, GND
 
+Some boards use **GPIO21** for the TFT backlight, others use **GPIO27**, and some have CN1 wired as `(3V3, GPIO27, GPIO22, GND)`.
+
+⚠️ Note: **GPIO35 is input-only**.
+
+---
+
+## Example `config.txt`
+
+```ini
+# CYD-MicroBlocks-LVGL configuration file
+
+[lcd]
+controller = ILI9341
+spi_host   = 2
+cs         = 15
+dc         = 2
+rst        = 4
+backlight  = 21
+sclk       = 18
+mosi       = 23
+miso       = 19
+width      = 240
+height     = 320
+rotation   = 1
+
+[lvgl]
+width  = 240
+height = 320
+
+[touch]
+type       = XPT2046
+spi_host   = 2
+cs         = 5
+irq        = 34
+sclk       = 18
+mosi       = 23
+miso       = 19
+rotation   = 0
+flip_x     = false
+flip_y     = true
+flip_x_y   = false
+
+[other]
+
+green = 16
+blue  = 17
