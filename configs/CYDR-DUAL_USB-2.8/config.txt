@@ -2,15 +2,15 @@
 [lcd]
 controller=ILI9341
 spi=2
-mosi=13
-miso=12
-sclk=14
-cs=15
-dc=2
+mosi=gpio_13
+miso=gpio_12
+sclk=gpio_14
+cs=gpio_15
+dc=gpio_2
 rotation=3
 color=1
 invert=true
-backlight=21
+backlight=gpio_21
 width=320
 height=240
 
@@ -22,11 +22,11 @@ height=240
 controller=xpt2046
 interface=spi
 spi=3
-mosi=32
-miso=39
-sclk=25
-irq=36
-cs=33
+mosi=gpio_32
+miso=gpio_39
+sclk=gpio_25
+irq=gpio_36
+cs=gpio_33
 rotation=1
 flip_y=true
 

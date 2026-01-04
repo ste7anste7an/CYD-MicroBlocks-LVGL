@@ -7,14 +7,14 @@ miso=gpio_12
 sclk=gpio_14
 cs=gpio_15
 dc=gpio_2
-rotation=3
+rotation=2
 backlight=gpio_27
 width=320
 height=240
 
 [lvgl]
-width=320
-height=240
+width=240
+height=320
 
 [touch]
 controller=cst820
@@ -23,8 +23,9 @@ i2c=1
 sda=gpio_33
 scl=gpio_32
 rotation=0
+flip_x_y=true
 flip_x=true
-
+flip_y=true
 
 
 
