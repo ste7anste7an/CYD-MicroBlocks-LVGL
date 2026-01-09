@@ -1,0 +1,26 @@
+[lcd]
+controller=ELECROW
+backlight=gpio_2
+width=480
+height=277
+
+# lvgl uses its own width and height
+[lvgl]
+width=480
+height=277
+
+# Touchscreen configuration
+[touch]
+interface=spi
+controller=xpt2046
+spi=3
+mosi=gpio_11
+miso=gpio_13
+sclk=gpio_12
+cs=gpio_0
+irq=36
+rotation=3
+
+
+# Other settings
+[other]
