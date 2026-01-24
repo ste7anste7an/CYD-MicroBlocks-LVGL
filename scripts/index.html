@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP32 mbcode Flasher</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f8f9fa;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      margin: 0;
+      padding: 1em;
+    }
+    h1 { font-size: 1.4em; margin-bottom: 0.5em; }
+    button {
+      margin: 0.3em;
+      padding: 0.6em 1.2em;
+      font-size: 1em;
+      border-radius: 0.5em;
+      border: none;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #0056b3; }
+    pre {
+      margin-top: 1em;
+      width: 90%;
+      max-width: 600px;
+      height: 40vh;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 0.5em;
+      padding: 1em;
+      font-size: 0.9em;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>ESP32 “mbcode” Partition Flasher</h1>
+  <p>This page flashes only the <code>mbcode</code> partition (0x1E8000, 160&nbsp;KiB) — it won’t erase your firmware.</p>
+  <div>
+    <button id="connect">Connect</button>
+    <button id="flash">Flash <code>mbcode.bin</code></button>
+  </div>
+  <pre id="log">Status: idle</pre>
+
+  <script type="module">
+    import { ESPLoader, Transport } from "https://unpkg.com/esptool-js@0.5.7/bundle.js";
+
+    const logEl = document.getElementById("log");
+    const log = (...a) => {
+      logEl.textContent += "\\n" + a.join(" ");
+      logEl.scrollTop = logEl.scrollHeight;
+    };
+
+    const MBCODE_OFFSET = 0x1E8000;
+    const MBCODE_SIZE   = 0x28000; // 163,840 bytes (160 KiB)
+
+    let loader, transport;
+
+    function padToFF(data, size) {
+      if (data.length === size) return data;
+      const out = new Uint8Array(size);
+      out.fill(0xFF);
+      out.set(data, 0);
+      return out;
+    }
+
+    document.getElementById("connect").onclick = async () => {
+  try {
+    if (transport && transport._port && transport._port.readable) {
+      log("Already connected. If needed, click Disconnect first.");
+      return;
+    }
+
+    const port = await navigator.serial.requestPort();
+    if (port.readable) {
+      log("Port is already open. Closing before reconnect...");
+      await port.close();
+    }
+
+    await port.open({ baudRate: 115200 });
+
+    transport = new Transport(port, true);
+    loader = new ESPLoader({
+      transport,
+      baudrate: 115200,
+      terminal: { clean() {}, write: log, writeLine: log }
+    });
+
+    await loader.main();
+    const info = loader.chip?.CHIP_NAME || "Unknown";
+    log(`Connected to ${info}`);
+  } catch (e) {
+    log("Connect failed:", e.message || e);
+  }
+};
+
+    document.getElementById("flash").onclick = async () => {
+      try {
+        if (!loader) throw new Error("Not connected.");
+
+        const resp = await fetch("./mbcode.bin");
+        if (!resp.ok) throw new Error("Couldn't fetch mbcode.bin");
+        const raw = new Uint8Array(await resp.arrayBuffer());
+
+        if (raw.length > MBCODE_SIZE) {
+          throw new Error(`File too large (${raw.length} bytes > ${MBCODE_SIZE})`);
+        }
+
+        const data = padToFF(raw, MBCODE_SIZE);
+
+        log(`Flashing mbcode (${data.length} bytes) at 0x${MBCODE_OFFSET.toString(16)}`);
+        await loader.writeFlash({
+          fileArray: [{ address: MBCODE_OFFSET, data }],
+          eraseAll: false,
+          compress: true,
+          flashSize: "keep",
+          flashMode: "keep",
+          flashFreq: "keep",
+          reportProgress: (i, written, total) => {
+            log(`Progress: ${((written / total) * 100).toFixed(1)}%`);
+          }
+        });
+
+        log("Flash complete!");
+        await loader.hardReset();
+        log("ESP32 reset.");
+      } catch (e) {
+        log("Flash failed:", e);
+      }
+    };
+  </script>
+</body>
+</html>
