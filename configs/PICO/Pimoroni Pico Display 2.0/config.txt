@@ -1,0 +1,20 @@
+# config file for st7789 for Pimoroni Pico Display 2.0
+# rst is not used (directly connected to RESET), and LCD_TE is not used
+# experiment with width and height )you might need to exchange them)
+# experiment with invert=true or false when colors look strange
+[lcd]
+controller=ST7789
+spi=1
+mosi=gpio_19
+sclk=gpio_18
+cs=gpio_17
+dc=gpio_16
+rotation=0
+invert=true
+backlight=gpio_20
+width=320
+height=240
+
+[lvgl]
+width=320
+height=240

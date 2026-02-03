@@ -1,0 +1,18 @@
+# config file for st7789 forround 1.28
+[lcd]
+controller=GC9A01
+spi=1
+mosi=gpio_11
+sclk=gpio_10
+cs=gpio_9
+dc=gpio_8
+rst=gpio_12
+rotation=0
+invert=false
+backlight=gpio_25
+width=240
+height=240
+
+[lvgl]
+width=240
+height=240
