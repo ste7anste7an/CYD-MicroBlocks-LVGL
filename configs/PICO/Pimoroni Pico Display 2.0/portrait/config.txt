@@ -4,7 +4,7 @@
 # experiment with invert=true or false when colors look strange
 [lcd]
 controller=ST7789
-spi=1
+spi=0
 mosi=gpio_19
 sclk=gpio_18
 cs=gpio_17
