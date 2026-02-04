@@ -9,12 +9,12 @@ mosi=gpio_19
 sclk=gpio_18
 cs=gpio_17
 dc=gpio_16
-rotation=1
+rotation=0
 invert=true
 backlight=gpio_20
-width=320
-height=240
+width=240
+height=320
 
 [lvgl]
-width=320
-height=240
+width=240
+height=320
